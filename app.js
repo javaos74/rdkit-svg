@@ -3,7 +3,8 @@ import path from 'path';
 import cookieParser from 'cookie-parser';
 import logger from 'morgan';
 
-import svg from './routes/svg.js';
+import svgR from './routes/svg.js';
+import pngR from './routes/png.js';
 
 var app = express();
 
@@ -12,6 +13,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
-app.use('/svg', svg);
+app.use('/svg', svgR);
+app.use('/png', pngR);
 
 export default app;

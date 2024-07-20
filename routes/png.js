@@ -1,10 +1,12 @@
 import initRDKitModule from "@rdkit/rdkit";
 import express from 'express';
+import {Resvg} from '@resvg/resvg-js';
 import fs  from 'fs';
-var svgR = express.Router();
+
+var pngR = express.Router();
 let rdkit = await initRDKitModule();
 /* GET users listing. */
-svgR.get('/', function(req, res, next) {
+pngR.get('/', function(req, res, next) {
   let error_found = true;
   console.log( req.query);
   let data = req.query.smiles; //"CC(=O)Oc1ccccc1C(=O)O";
@@ -17,9 +19,18 @@ svgR.get('/', function(req, res, next) {
       let svg = mol.get_svg();
       if( svg)
       {
+        const opts = { 
+          fitTo: {
+            background: 'rgba(238, 235, 230, .9)',
+            mode: 'width',
+            value: '600'
+          }
+        };
+        let _resvg = new Resvg(svg, opts)
+        let pngdata  = _resvg.render().asPng();
         res.removeHeader("Content-Type");
-        res.appendHeader("Content-Type", "image/svg+xml");
-        res.send(svg);
+        res.appendHeader("Content-Type", "image/png");
+        res.send(pngdata);
         error_found = false;
       }
     }
@@ -30,7 +41,7 @@ svgR.get('/', function(req, res, next) {
   }
 });
 
-svgR.post('/', async function(req, res, next) {
+pngR.post('/', async function(req, res, next) {
   let error_found = true;
   let data = req.body.smiles; //"CC(=O)Oc1ccccc1C(=O)O";
   if( data)
@@ -39,12 +50,21 @@ svgR.post('/', async function(req, res, next) {
     let mol = rdkit.get_mol(buff.toString('utf-8'));
     if( mol )
     { 
-      let svg = mol.get_svg();
+      let svg= mol.get_svg();
       if( svg)
       {
+        const opts = { 
+          fitTo: {
+            background: 'rgba(238, 235, 230, .9)',
+            mode: 'width',
+            value: '600'
+          }
+        };
+        let _resvg = new Resvg(svg, opts)
+        let pngdata  = _resvg.render().asPng();
         res.removeHeader("Content-Type");
-        res.appendHeader("Content-Type", "image/svg+xml");
-        res.send(svg);
+        res.appendHeader("Content-Type", "image/png");
+        res.send(pngdata);
         error_found = false;
       }
     }
@@ -55,4 +75,4 @@ svgR.post('/', async function(req, res, next) {
   }
 });
 
-export default svgR;
+export default pngR;
